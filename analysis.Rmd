@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+I've setup the environment with the necessary packages and a pointer to a database.
+
+```{r}
+library(tidyverse)
+con <- RSQLite::dbConnect(RSQLite::SQLite(), "nycflights.sqlite3")
+```
+
+
+As our first step, we'll pull the data. Maybe I have some SQL code to do this:
+
+```{sql connection=con, output.var = flights}
+SELECT * FROM flights WHERE arr_delay > 0 LIMIT 10000
+```
+
+
+I can use the data in R to start exploring and answering questions:
+
+```{r}
+flights # this will print the data
+summary(flights)
+```
+
+Maybe I'm interested in seeing what factors influence arrival delay:
+
+```{r}
+flights %>% 
+  select(sched_dep_time, air_time, arr_delay) %>% 
+  cor() %>% 
+  corrplot::corrplot(method = 'ellipse')
+```
+
+I can also add a new variable for day of week:
+
+```{r}
+flights_subset <- flights %>% 
+  mutate(date = lubridate::ymd(paste(year, month, day))) %>% 
+  mutate(dow = lubridate::wday(date, label = TRUE)) %>% 
+  select(dow, arr_delay, sched_dep_time, air_time)
+
+flights_subset
+
+ggplot(flights_subset, aes(y = arr_delay, x = dow)) + 
+  geom_boxplot()
+
+ggplot(flights_subset, aes(y = arr_delay, x = air_time)) + 
+  geom_point()
+
+flights_
+```
+
+
+
+I've observed that there are some outliers in my data ... this will influence the model going forward.
+
+```{r}
+m <- lm(arr_delay ~ ., data = flights_subset)
+summary(m)
+plot(m)
+```
+
+
+
+
+Help!! The model diagnostics don't look good.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
