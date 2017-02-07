@@ -55,15 +55,15 @@ flights_
 
 
 
-I've observed that there are some outliers in my data ... this will influence the model going forward.
+I've observed that there are some outliers in my data ... this will influence the model going forward. But, I'll start with a naive linear model:
+
+$ y = \beta_o + \beta_1 x + \epsilon $
 
 ```{r}
 m <- lm(arr_delay ~ ., data = flights_subset)
 summary(m)
 plot(m)
 ```
-
-
 
 
 Help!! The model diagnostics don't look good.
